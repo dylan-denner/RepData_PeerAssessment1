@@ -8,19 +8,65 @@ output:
 
 ## Loading and preprocessing the data
 
-```{r}
-print("Testing")
+```{r, echo = TRUE}
+data <- read.csv(unz("activity.zip", "activity.csv"), header = TRUE, sep = ",") 
+
+data$Date <- as.POSIXct(data$date, format="%Y-%m-%d")
+
 ```
 ## What is mean total number of steps taken per day?
 
+```{r, echo = TRUE}
+daily_steps <- aggregate(data$steps ~ data$Date, FUN = sum, )
+colnames(daily_steps) <- c("Date", "Steps")
+
+mean_steps_per_day <- mean(daily_steps$Steps, na.rm = TRUE)
+median_steps_per_day <- median(daily_steps$Steps, na.rm = TRUE)
+
+hist(daily_steps$Steps, breaks = 10, ylab = "Frequency", xlab = "Steps", main = "Total Steps per Day")
+
+
+```
 
 
 ## What is the average daily activity pattern?
+```{r, echo = TRUE}
+library(ggplot2)
+steps_per_interval <- aggregate(data$steps ~ data$interval, FUN = mean, )
+colnames(steps_per_interval) <- c("Interval", "AverageSteps")
 
+p <- ggplot(steps_per_interval, aes(x=Interval, y=AverageSteps)) +
+  geom_line() +
+  xlab("")
+p
 
+most_active <- steps_per_interval[which.max(steps_per_interval$AverageSteps),]
 
+most_active
+
+```
 ## Imputing missing values
+```{r, echo = TRUE}
 
+new_steps_df <- data
+
+new_steps_df[is.na(new_steps_df)] = mean(steps_per_interval$AverageSteps)
+
+new_daily_steps <- aggregate(new_steps_df$steps ~ new_steps_df$Date, FUN = sum, )
+
+colnames(new_daily_steps) <- c("Date", "Steps")
+
+mean_steps_per_day <- mean(new_daily_steps$Steps, na.rm = TRUE)
+median_steps_per_day <- median(new_daily_steps$Steps, na.rm = TRUE)
+
+hist(new_daily_steps$Steps, breaks = 10, ylab = "Frequency", xlab = "Steps", main = "Total Steps per Day")
+
+```
 
 
 ## Are there differences in activity patterns between weekdays and weekends?
+
+```{r, echo = TRUE}
+
+
+```
